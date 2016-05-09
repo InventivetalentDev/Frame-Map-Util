@@ -72,26 +72,44 @@ public enum MapFacing {
 		this.frameModInverted = frameModInverted;
 	}
 
+	/**
+	 * @return The modification factor for the X-direction the frame is facing
+	 */
 	public int getFaceModX() {
 		return xFaceMod;
 	}
 
+	/**
+	 * @return The modification factor for the Z-direction the frame is facing
+	 */
 	public int getFaceModZ() {
 		return zFaceMod;
 	}
 
+	/**
+	 * @return The X modification factor on the pane the frame is placed
+	 */
 	public int getFrameModX() {
 		return xFrameMod;
 	}
 
+	/**
+	 * @return The Z modification factor on the pane the frame is placed
+	 */
 	public int getFrameModZ() {
 		return zFrameMod;
 	}
 
+	/**
+	 * @return the {@link BlockFace} in which the frame is facing
+	 */
 	public BlockFace getFrameDirection() {
 		return frameDirection;
 	}
 
+	/**
+	 * @return the {@link Plane} the frame is placed on
+	 */
 	public Plane getPlane() {
 		return plane;
 	}
@@ -106,6 +124,12 @@ public enum MapFacing {
 		return frameModInverted;
 	}
 
+	/**
+	 * Gets the facing for an ItemFrame
+	 *
+	 * @param itemFrame ItemFrame to check
+	 * @return the frame's {@link MapFacing}
+	 */
 	public static MapFacing getForItemFrame(ItemFrame itemFrame) {
 		switch (itemFrame.getFacing()) {
 			case NORTH:
@@ -121,6 +145,13 @@ public enum MapFacing {
 		}
 	}
 
+	/**
+	 * Creates a BoundingBox for this facing and expands it to fit the size of ItemFrame entities
+	 *
+	 * @param a first box corner
+	 * @param b second box corner
+	 * @return a new {@link BoundingBox}
+	 */
 	public BoundingBox createBoundingBox(Vector3DDouble a, Vector3DDouble b) {
 		Vector3DDouble min = Vectors.min(a, b);
 		Vector3DDouble max = Vectors.max(a, b);
@@ -146,7 +177,7 @@ public enum MapFacing {
 			}
 			if (getFaceModZ() < 0) {
 				min = min.add(0, 0, 0.9375);
-				max = max.add(1, 1,  0.9375);
+				max = max.add(1, 1, 0.9375);
 			}
 		}
 		if (plane == Plane.Z) {
@@ -172,6 +203,12 @@ public enum MapFacing {
 		 */
 		Z;
 
+		/**
+		 * Converts a 3D vector to a 2D plane vector
+		 *
+		 * @param vector3d vector to convert
+		 * @return the converted vector
+		 */
 		public Vector2DDouble to2D(Vector3DDouble vector3d) {
 			if (this == X) {
 				return new Vector2DDouble(vector3d.getX(), vector3d.getY());
@@ -184,14 +221,37 @@ public enum MapFacing {
 			return Vector2DDouble.ZERO;
 		}
 
+		/**
+		 * Converts a plane 2D vector to 3D
+		 *
+		 * @param vector2d vector to convert
+		 * @return converted vector
+		 * @see #to3D(Vector2DDouble, double)
+		 * @see #to3D(Vector2DDouble, double, double)
+		 */
 		public Vector3DDouble to3D(Vector2DDouble vector2d) {
 			return to3D(vector2d, 0);
 		}
 
+		/**
+		 * Converts a plane 2D vector to 3D and replaces the unassigned axis (X or Z) with the specified number
+		 *
+		 * @param vector2d vector to convert
+		 * @param xOrZ     value for the unassigned axis
+		 * @return the converted vector
+		 */
 		public Vector3DDouble to3D(Vector2DDouble vector2d, double xOrZ) {
 			return to3D(vector2d, xOrZ, xOrZ);
 		}
 
+		/**
+		 * Converts a plane 2D vector to 3D and replaces the axis values if they are unassigned
+		 *
+		 * @param vector2d vector to convert
+		 * @param altX     value for X
+		 * @param altZ     value for Z
+		 * @return the converted vector
+		 */
 		public Vector3DDouble to3D(Vector2DDouble vector2d, double altX, double altZ) {
 			if (this == X) {
 				return new Vector3DDouble(vector2d.getX(), vector2d.getY(), altZ);

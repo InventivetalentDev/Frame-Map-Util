@@ -42,6 +42,11 @@ import org.inventivetalent.vectors.d2.Vector2DDouble;
 import org.inventivetalent.vectors.d3.Vector3DDouble;
 import org.inventivetalent.vectors.d3.Vector3DInt;
 
+/**
+ * Base frame class
+ * <p>
+ * Calculates position, absolute frame bounding box, bounding box including the blocks the frames are placed on and the {@link MapFacing}
+ */
 @Data
 @EqualsAndHashCode(doNotUseGetters = true)
 @ToString(doNotUseGetters = true)

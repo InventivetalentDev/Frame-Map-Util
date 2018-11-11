@@ -39,10 +39,10 @@ public abstract class BaseFrameMapAbstract {
 
 	public BaseFrameMapAbstract(@NonNull ItemFrame baseFrame, @NonNull Vector3DDouble firstCorner, @NonNull Vector3DDouble secondCorner) {
 		Vector3DDouble diffCheck = firstCorner.subtract(secondCorner);
-		if (Math.abs(diffCheck.getX()) > 1 && Math.abs(diffCheck.getZ()) > 1) {
-			// The frames are 3-dimensional, not on a single plane
-			throw new IllegalArgumentException("Invalid frame position dimensions");
-		}
+		//		if (Math.abs(diffCheck.getX()) > 1 && Math.abs(diffCheck.getZ()) > 1 || Math.abs(diffCheck.getX()) > 1 && Math.abs(diffCheck.getY()) > 1 || Math.abs(diffCheck.getZ()) > 1 && Math.abs(diffCheck.getY()) > 1) {
+		//			// The frames are 3-dimensional, not on a single plane
+		//			throw new IllegalArgumentException("Invalid frame position dimensions");
+		//		}
 
 		this.worldName = baseFrame.getWorld().getName();
 		this.facing = MapFacing.getForItemFrame(baseFrame);

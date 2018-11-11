@@ -10,38 +10,46 @@ import org.inventivetalent.vectors.d3.Vector3DDouble;
 public enum MapFacing {
 
 	// @formatter:off
-	//		faceX	faceZ	frameX	frameZ									inverted
-	NORTH(	+0, 	-1, 	-1, 	+0, 	BlockFace.NORTH, 	Plane.X,	true	),
-	EAST(	+1, 	+0, 	+0, 	-1, 	BlockFace.EAST, 	Plane.Z,	true	),
-	SOUTH(	+0, 	+1, 	+1,		+0, 	BlockFace.SOUTH, 	Plane.X,	false	),
-	WEST(	-1, 	+0, 	+0, 	+1, 	BlockFace.WEST, 	Plane.Z,	false	);
+	//		faceX	faceZ	faceY	frameX	frameZ	frameY									h-inverted	v-inverted
+	NORTH(	+0, 	-1, 	+0,		-1, 	+0,		+1,	 	BlockFace.NORTH, 	Plane.X,	true,		false	),
+	EAST(	+1, 	+0, 	+0, 	+0, 	-1, 	+1,		BlockFace.EAST, 	Plane.Z,	true,		false	),
+	SOUTH(	+0, 	+1, 	+0,		+1,		+0, 	+1,		BlockFace.SOUTH, 	Plane.X,	false,		false	),
+	WEST(	-1, 	+0, 	+0,		+0, 	+1, 	+1,		BlockFace.WEST, 	Plane.Z,	false,		false	),
+	UP(		+0,		+0,		+1,		+1,		+1,		+0, 	BlockFace.UP,		Plane.Y,	false,		true	),
+	DOWN(	+0,		+0,		-1,		-1,		-1,		+0,		BlockFace.DOWN,		Plane.Y,	false,		false	);
 	// @formatter:on
 
 	// Mod in the direction the frame is facing
 	private int xFaceMod;
 	private int zFaceMod;
+	private int yFaceMod;
 
 	// Mod on the frame pane
 	private int xFrameMod;
 	private int zFrameMod;
+	private int yFrameMod;
 
 	// Facing of the frame
 	private BlockFace frameDirection;
 
 	private Plane plane;
 
-	private boolean frameModInverted;
+	private boolean hModInverted;
+	private boolean vModInverted;
 
-	MapFacing(int xFaceMod, int zFaceMod, int xFrameMod, int zFrameMod, BlockFace frameDirection, Plane plane, boolean frameModInverted) {
+	MapFacing(int xFaceMod, int zFaceMod, int yFaceMod, int xFrameMod, int zFrameMod, int yFrameMod, BlockFace frameDirection, Plane plane, boolean hModInverted, boolean vModInverted) {
 		this.xFaceMod = xFaceMod;
 		this.zFaceMod = zFaceMod;
+		this.yFaceMod = yFaceMod;
 
 		this.xFrameMod = xFrameMod;
 		this.zFrameMod = zFrameMod;
+		this.yFrameMod = yFrameMod;
 
 		this.frameDirection = frameDirection;
 		this.plane = plane;
-		this.frameModInverted = frameModInverted;
+		this.hModInverted = hModInverted;
+		this.vModInverted=vModInverted;
 	}
 
 	/**
@@ -59,6 +67,13 @@ public enum MapFacing {
 	}
 
 	/**
+	 * @return The modification factor for the Y-direction the frame is facing
+	 */
+	public int getFaceModY() {
+		return yFaceMod;
+	}
+
+	/**
 	 * @return The X modification factor on the pane the frame is placed
 	 */
 	public int getFrameModX() {
@@ -70,6 +85,13 @@ public enum MapFacing {
 	 */
 	public int getFrameModZ() {
 		return zFrameMod;
+	}
+
+	/**
+	 * @return The Y modification factor on the pane the frame is placed
+	 */
+	public int getFrameModY() {
+		return yFrameMod;
 	}
 
 	/**
@@ -92,8 +114,12 @@ public enum MapFacing {
 	//
 	//	}
 
-	public boolean isFrameModInverted() {
-		return frameModInverted;
+	public boolean isHorizontalModInverted() {
+		return hModInverted;
+	}
+
+	public boolean isVerticalModInverted() {
+		return vModInverted;
 	}
 
 	/**
@@ -112,6 +138,10 @@ public enum MapFacing {
 				return SOUTH;
 			case WEST:
 				return WEST;
+			case UP:
+				return UP;
+			case DOWN:
+				return DOWN;
 			default:
 				throw new RuntimeException("Invalid frame facing: " + itemFrame.getFacing());
 		}
@@ -161,6 +191,15 @@ public enum MapFacing {
 				max = max.add(0.9375, 1, 1);
 			}
 		}
+		if (plane == Plane.Y) {
+			if (getFaceModY()>0) {
+				max = max.add(1, 0.0625, 1);
+			}
+			if (getFaceModY()<0) {
+				min = min.add(0, 0.9375, 0);
+				max = max.add(1, 0.9375, 1);
+			}
+		}
 
 		return new BoundingBox(min, max);
 	}
@@ -173,7 +212,11 @@ public enum MapFacing {
 		/**
 		 * Z-Plane, maps facing east or west
 		 */
-		Z;
+		Z,
+		/**
+		 * Y-Plane, maps facing up or down
+		 */
+		Y;
 
 		/**
 		 * Converts a 3D vector to a 2D plane vector
@@ -188,6 +231,9 @@ public enum MapFacing {
 			if (this == Z) {
 				return new Vector2DDouble(vector3d.getZ(), vector3d.getY());
 			}
+			if (this == Y) {
+				return new Vector2DDouble(vector3d.getX(), vector3d.getZ());
+			}
 
 			// No idea how it would ever get this far...
 			return Vector2DDouble.ZERO;
@@ -199,7 +245,7 @@ public enum MapFacing {
 		 * @param vector2d vector to convert
 		 * @return converted vector
 		 * @see #to3D(Vector2DDouble, double)
-		 * @see #to3D(Vector2DDouble, double, double)
+		 * @see #to3D(Vector2DDouble, double, double, double)
 		 */
 		public Vector3DDouble to3D(Vector2DDouble vector2d) {
 			return to3D(vector2d, 0);
@@ -209,11 +255,11 @@ public enum MapFacing {
 		 * Converts a plane 2D vector to 3D and replaces the unassigned axis (X or Z) with the specified number
 		 *
 		 * @param vector2d vector to convert
-		 * @param xOrZ     value for the unassigned axis
+		 * @param xOrYOrZ  value for the unassigned axis
 		 * @return the converted vector
 		 */
-		public Vector3DDouble to3D(Vector2DDouble vector2d, double xOrZ) {
-			return to3D(vector2d, xOrZ, xOrZ);
+		public Vector3DDouble to3D(Vector2DDouble vector2d, double xOrYOrZ) {
+			return to3D(vector2d, xOrYOrZ, xOrYOrZ, xOrYOrZ);
 		}
 
 		/**
@@ -224,12 +270,15 @@ public enum MapFacing {
 		 * @param altZ     value for Z
 		 * @return the converted vector
 		 */
-		public Vector3DDouble to3D(Vector2DDouble vector2d, double altX, double altZ) {
+		public Vector3DDouble to3D(Vector2DDouble vector2d, double altX, double altZ, double altY) {
 			if (this == X) {
 				return new Vector3DDouble(vector2d.getX(), vector2d.getY(), altZ);
 			}
 			if (this == Z) {
 				return new Vector3DDouble(altX, vector2d.getY(), vector2d.getX());
+			}
+			if (this == Y) {
+				return new Vector3DDouble(vector2d.getX(), altY, vector2d.getY());
 			}
 
 			return Vector3DDouble.ZERO;

@@ -7,7 +7,7 @@
 
     <groupId>org.inventivetalent</groupId>
     <artifactId>frame-map-util</artifactId>
-    <version>1.2.2-SNAPSHOT</version>
+    <version>1.2.3-SNAPSHOT</version>
     <name>FrameMapUtil</name>
 
     <build>
